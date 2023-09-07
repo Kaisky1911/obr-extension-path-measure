@@ -24,9 +24,6 @@ function createTool() {
                 label: "Measure a Path",
             },
         ],
-        defaultMetadata: {
-            strokeColor: "white",
-        },
     });
 }
 
@@ -55,38 +52,6 @@ function addCleanupAction() {
         },
     });
     cleanupActionIsAdded = true;
-}
-
-function createAction() {
-    OBR.tool.createAction({
-        id: `${ID}/color`,
-        icons: [
-            {
-                icon: "/color.svg",
-                label: "Color",
-                filter: {
-                    activeTools: [`${ID}/tool`],
-                },
-            },
-        ],
-        onClick(_, elementId) {
-            OBR.popover.open({
-                id: `${ID}/color-picker`,
-                height: 250,
-                width: 280,
-                url: "/color-picker.html",
-                anchorElementId: elementId,
-                anchorOrigin: {
-                    horizontal: "CENTER",
-                    vertical: "BOTTOM",
-                },
-                transformOrigin: {
-                    horizontal: "CENTER",
-                    vertical: "TOP",
-                },
-            });
-        },
-    });
 }
 
 function createMode() {
@@ -141,10 +106,7 @@ function createMode() {
 }
 
 async function onToolDragStart(context, event) {
-    let strokeColor = "blue";
-    if (typeof context.metadata.strokeColor === "string") {
-        strokeColor = context.metadata.strokeColor;
-    }
+    let strokeColor = await OBR.player.getColor();
     let startPos = await snapToGrid(event.pointerPosition);
     dragStartPos = startPos
     let dragItem = null
@@ -277,6 +239,5 @@ function onToolDragCancel() {
 OBR.onReady(async () => {
     createTool();
     createMode();
-    createAction();
 });
 
