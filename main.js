@@ -8,6 +8,7 @@ let interaction = null;
 let allMyItems = [];
 let dragStartPos = null
 let lastGridPos = null
+let cleanupActionIsAdded = false;
 
 async function snapToGrid(pos) {
     return await OBR.scene.grid.snapPosition(pos, true, false)
@@ -29,7 +30,10 @@ function createTool() {
     });
 }
 
-function createAction() {
+function addCleanupAction() {
+    if (cleanupActionIsAdded) {
+        return;
+    }
     OBR.tool.createAction({
         id: `${ID}/delete`,
         icons: [
@@ -46,13 +50,19 @@ function createAction() {
                 OBR.scene.items.deleteItems([label.id, path.id]);
             });
             allMyItems = [];
+            OBR.tool.removeAction(`${ID}/delete`);
+            cleanupActionIsAdded = false;
         },
     });
+    cleanupActionIsAdded = true;
+}
+
+function createAction() {
     OBR.tool.createAction({
         id: `${ID}/color`,
         icons: [
             {
-                icon: "/circle.svg",
+                icon: "/color.svg",
                 label: "Color",
                 filter: {
                     activeTools: [`${ID}/tool`],
@@ -62,8 +72,8 @@ function createAction() {
         onClick(_, elementId) {
             OBR.popover.open({
                 id: `${ID}/color-picker`,
-                height: 40,
-                width: 80,
+                height: 250,
+                width: 280,
                 url: "/color-picker.html",
                 anchorElementId: elementId,
                 anchorOrigin: {
@@ -242,6 +252,7 @@ async function onToolDragEnd(context, event) {
         if (context.activeMode === `${ID}/draw`) {
             OBR.scene.items.addItems([label, path]);
             allMyItems.push([label, path]);
+            addCleanupAction();
         }
         stop();
     }
@@ -267,6 +278,5 @@ OBR.onReady(async () => {
     createTool();
     createMode();
     createAction();
-    await loadGrid();
 });
 
