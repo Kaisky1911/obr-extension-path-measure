@@ -38,8 +38,8 @@ function createTool() {
         id: `${ID}/tool`,
         icons: [
             {
-                icon: "/homer_stinkt.svg",
-                label: "Homer stinkt",
+                icon: "/path_icon.svg",
+                label: "Measure a Path",
             },
         ],
         defaultMetadata: {

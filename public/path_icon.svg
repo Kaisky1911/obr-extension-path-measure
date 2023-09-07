@@ -1,0 +1,9 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .path {
+      font: bold 110px sans-serif;
+    }
+  </style>
+
+  <text x="-12" y="150" class="path">Path</text>
+</svg>
