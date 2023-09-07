@@ -2,7 +2,7 @@
 
 import OBR, { buildLabel, buildPath, Command } from "@owlbear-rodeo/sdk";
 
-const ID = "com.tutorial.custom-tool";
+const ID = "path-measure-tool";
 
 let interaction = null;
 let allMyItems = [];
