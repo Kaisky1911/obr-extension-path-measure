@@ -54,7 +54,7 @@ function addCleanupAction() {
     cleanupActionIsAdded = true;
 }
 
-const DIAGONAL_MODES = ["default", "diagonal", "1.5", "alternating"]
+const DIAGONAL_MODES = ["disabled", "diagonal", "1.5", "alternating"]
 let diagonalMode = 0
 
 function createDiagonalModeAction() {
