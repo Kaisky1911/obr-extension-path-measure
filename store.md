@@ -20,8 +20,9 @@ The tool provides three modes:
   - Measure: Only shows path and distance without moving a character
   - Draw: Draws path and distance on the map. Can be deleted manually or using the Clean Up action.
 
-One Action:
+Two Actions:
   - Clean Up: Only available after a path has been made using the Draw mode. Cleans up all drawn paths.
+  - Toggle Diagonal modes (ignored in hex grid layout)
 
 ![path-measure-tools example](https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/tools.png)
 
