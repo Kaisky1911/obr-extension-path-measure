@@ -9,27 +9,8 @@ let allMyItems = [];
 let dragStartPos = null
 let lastGridPos = null
 
-let gridInfo = null
-
-
 async function snapToGrid(pos) {
     return await OBR.scene.grid.snapPosition(pos, true, false)
-}
-
-async function getScale() {
-    if (!gridInfo || !gridInfo.scale) {
-        await loadGrid()
-    }
-    return gridInfo.scale
-}
-
-
-async function loadGrid() {
-    gridInfo = {
-        scale: await OBR.scene.grid.getScale(),
-        dpi: await OBR.scene.grid.getDpi(),
-        type: await OBR.scene.grid.getType(),
-    }
 }
 
 
@@ -173,7 +154,7 @@ async function onToolDragStart(context, event) {
         .layer("DRAWING")
         .build();
     const label = buildLabel()
-        .plainText(`0${(await getScale()).parsed.unit}`)
+        .plainText(`0${(await OBR.scene.grid.getScale()).parsed.unit}`)
         .position(startPos)
         .layer("NOTE")
         .build();
@@ -191,43 +172,45 @@ async function onToolDragMove(context, event) {
             return;
         }
         lastGridPos = newPos
-        let scale = (await getScale()).parsed.unit
-        let scale_multiplier = (await getScale()).parsed.multiplier
+        let scale = (await OBR.scene.grid.getScale()).parsed.unit
+        let gridType = await OBR.scene.grid.getType()
+        let gridDpi = await OBR.scene.grid.getDpi()
+        let scale_multiplier = (await OBR.scene.grid.getScale()).parsed.multiplier
         update(([label, path, dragItem]) => {
             let lastCommand = path.commands[path.commands.length - 1];
             let lastLastCommand = path.commands[path.commands.length - 2];
             if (lastCommand) {
-                if (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) < gridInfo.dpi / 2) {
+                if (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) < gridDpi / 2) {
                     return;
                 }
             }
-            if (lastLastCommand && Math.sqrt(Math.pow(newPos.x - lastLastCommand[1], 2) + Math.pow(newPos.y - lastLastCommand[2], 2)) < gridInfo.dpi / 2) {
+            if (lastLastCommand && Math.sqrt(Math.pow(newPos.x - lastLastCommand[1], 2) + Math.pow(newPos.y - lastLastCommand[2], 2)) < gridDpi / 2) {
                 path.commands.pop();
             }
             else {
-                while (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) > gridInfo.dpi * 1.1) {
-                    if (gridInfo.type == "SQUARE") {
+                while (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) > gridDpi * 1.1) {
+                    if (gridType == "SQUARE") {
                         let x_dis = newPos.x - lastCommand[1];
                         let y_dis = newPos.y - lastCommand[2];
                         let dx = 0;
                         let dy = 0;
                         if (Math.abs(x_dis) > Math.abs(y_dis)) {
-                            dx = Math.sign(x_dis) * gridInfo.dpi;
+                            dx = Math.sign(x_dis) * gridDpi;
                         }
                         else {
-                            dy = Math.sign(y_dis) * gridInfo.dpi;
+                            dy = Math.sign(y_dis) * gridDpi;
                         }
                         path.commands.push([Command.LINE, lastCommand[1] + dx, lastCommand[2] + dy])
                     }
                     else {
                         let angle = Math.atan2(newPos.y - lastCommand[2], newPos.x - lastCommand[1]);
                         let angle_offset = 0
-                        if (gridInfo.type == "HEX_HORIZONTAL") {
+                        if (gridType == "HEX_HORIZONTAL") {
                             angle_offset = Math.PI / 6
                         }
                         angle = Math.round((angle + angle_offset) / (Math.PI / 3)) * (Math.PI / 3) - angle_offset;
-                        let dx = Math.cos(angle) * gridInfo.dpi;
-                        let dy = Math.sin(angle) * gridInfo.dpi;
+                        let dx = Math.cos(angle) * gridDpi;
+                        let dy = Math.sin(angle) * gridDpi;
                         path.commands.push([Command.LINE, lastCommand[1] + dx, lastCommand[2] + dy])
                     }
                     lastCommand = path.commands[path.commands.length - 1];
