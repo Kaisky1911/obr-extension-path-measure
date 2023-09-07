@@ -146,7 +146,7 @@ async function onToolDragStart(context, event) {
         .strokeOpacity(0.5)
         .strokeDash([30, 10])
         .locked(true)
-        .layer("DRAWING")
+        .layer("MOUNT")
         .build();
     const label = buildLabel()
         .plainText(`0${(await OBR.scene.grid.getScale()).parsed.unit}`)
