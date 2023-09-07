@@ -1,0 +1,19 @@
+---
+title: Path Measure
+description: Helper Tool for measuring a path along the grid
+author: Kaisky
+image: https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/icon.png
+icon: https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/public/icon.svg
+tags:
+  - path
+  - measure
+  - grid
+  - distance
+manifest: https://path-measure.onrender.com/manifest.json
+learn-more: https://github.com/Kaisky1911/obr-extension-path-measure
+---
+
+This extension allows players to measure the distance of a path along the grid. Works with both hexagonal and rectangular grid settings.
+
+![path-measure example](https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/example.png)
+
