@@ -5,10 +5,8 @@ author: Kaisky
 image: https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/icon.png
 icon: https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/public/icon.svg
 tags:
-  - path
-  - measure
-  - grid
-  - distance
+  - tool
+  - drawing
 manifest: https://path-measure.onrender.com/manifest.json
 learn-more: https://github.com/Kaisky1911/obr-extension-path-measure
 ---
