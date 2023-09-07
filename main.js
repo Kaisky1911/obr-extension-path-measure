@@ -38,7 +38,7 @@ function createTool() {
         id: `${ID}/tool`,
         icons: [
             {
-                icon: "/path_icon.svg",
+                icon: "/icon.svg",
                 label: "Measure a Path",
             },
         ],
@@ -166,8 +166,9 @@ async function onToolDragStart(context, event) {
         .commands([[Command.MOVE, startPos.x, startPos.y]])
         .fillColor("transparent")
         .strokeColor(strokeColor)
-        .strokeWidth(50)
-        .strokeOpacity(0.3)
+        .strokeWidth(30)
+        .strokeOpacity(0.5)
+        .strokeDash([30, 10])
         .locked(true)
         .layer("DRAWING")
         .build();
@@ -196,14 +197,41 @@ async function onToolDragMove(context, event) {
             let lastCommand = path.commands[path.commands.length - 1];
             let lastLastCommand = path.commands[path.commands.length - 2];
             if (lastCommand) {
-                if (lastCommand[1] === newPos.x && lastCommand[2] === newPos.y) {
+                if (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) < gridInfo.dpi / 2) {
                     return;
                 }
             }
-            if (lastLastCommand && lastLastCommand[1] === newPos.x && lastLastCommand[2] === newPos.y) {
+            if (lastLastCommand && Math.sqrt(Math.pow(newPos.x - lastLastCommand[1], 2) + Math.pow(newPos.y - lastLastCommand[2], 2)) < gridInfo.dpi / 2) {
                 path.commands.pop();
             }
             else {
+                while (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) > gridInfo.dpi * 1.1) {
+                    if (gridInfo.type == "SQUARE") {
+                        let x_dis = newPos.x - lastCommand[1];
+                        let y_dis = newPos.y - lastCommand[2];
+                        let dx = 0;
+                        let dy = 0;
+                        if (Math.abs(x_dis) > Math.abs(y_dis)) {
+                            dx = Math.sign(x_dis) * gridInfo.dpi;
+                        }
+                        else {
+                            dy = Math.sign(y_dis) * gridInfo.dpi;
+                        }
+                        path.commands.push([Command.LINE, lastCommand[1] + dx, lastCommand[2] + dy])
+                    }
+                    else {
+                        let angle = Math.atan2(newPos.y - lastCommand[2], newPos.x - lastCommand[1]);
+                        let angle_offset = 0
+                        if (gridInfo.type == "HEX_HORIZONTAL") {
+                            angle_offset = Math.PI / 6
+                        }
+                        angle = Math.round((angle + angle_offset) / (Math.PI / 3)) * (Math.PI / 3) - angle_offset;
+                        let dx = Math.cos(angle) * gridInfo.dpi;
+                        let dy = Math.sin(angle) * gridInfo.dpi;
+                        path.commands.push([Command.LINE, lastCommand[1] + dx, lastCommand[2] + dy])
+                    }
+                    lastCommand = path.commands[path.commands.length - 1];
+                }
                 path.commands.push([Command.LINE, newPos.x, newPos.y])
             }
             if (dragItem) {
