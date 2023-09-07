@@ -54,7 +54,30 @@ function addCleanupAction() {
     cleanupActionIsAdded = true;
 }
 
-function createMode() {
+const DIAGONAL_MODES = ["default", "diagonal", "1.5", "alternating"]
+let diagonalMode = 0
+
+function createDiagonalModeAction() {
+    OBR.tool.createAction({
+        id: `${ID}/diagonal-mode-${DIAGONAL_MODES[diagonalMode]}`,
+        icons: [
+            {
+                icon: `/diagonal-mode-${DIAGONAL_MODES[diagonalMode]}.svg`,
+                label: "Diagonal Measure Type: " + DIAGONAL_MODES[diagonalMode],
+                filter: {
+                    activeTools: [`${ID}/tool`],
+                },
+            },
+        ],
+        onClick(_, elementId) {
+            OBR.tool.removeAction(`${ID}/diagonal-mode-${DIAGONAL_MODES[diagonalMode]}`);
+            diagonalMode = (diagonalMode + 1) % DIAGONAL_MODES.length
+            createDiagonalModeAction();
+        },
+    });
+}
+
+function createModes() {
     OBR.tool.createMode({
         id: `${ID}/move`,
         icons: [
@@ -140,6 +163,9 @@ async function onToolDragMove(context, event) {
     if (interaction) {
         const [update] = interaction;
         let newPos = await snapToGrid(event.pointerPosition);
+        if (diagonalMode && getDis(newPos, event.pointerPosition) > 0.5 * (await OBR.scene.grid.getDpi())) {
+            return;
+        }
         if (newPos.x === lastGridPos?.x && newPos.y === lastGridPos?.y) {
             return;
         }
@@ -152,25 +178,27 @@ async function onToolDragMove(context, event) {
             let lastCommand = path.commands[path.commands.length - 1];
             let lastLastCommand = path.commands[path.commands.length - 2];
             if (lastCommand) {
-                if (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) < gridDpi / 2) {
+                if (getDis(newPos, { x: lastCommand[1], y: lastCommand[2]}) < gridDpi / 2) {
                     return;
                 }
             }
-            if (lastLastCommand && Math.sqrt(Math.pow(newPos.x - lastLastCommand[1], 2) + Math.pow(newPos.y - lastLastCommand[2], 2)) < gridDpi / 2) {
+            if (lastLastCommand && getDis(newPos, { x: lastLastCommand[1], y: lastLastCommand[2]}) < gridDpi / 2) {
                 path.commands.pop();
             }
             else {
-                while (Math.sqrt(Math.pow(newPos.x - lastCommand[1], 2) + Math.pow(newPos.y - lastCommand[2], 2)) > gridDpi * 1.1) {
+                while (getDis(newPos, { x: lastCommand[1], y: lastCommand[2]}) > gridDpi * 1.1) {
                     if (gridType == "SQUARE") {
                         let x_dis = newPos.x - lastCommand[1];
                         let y_dis = newPos.y - lastCommand[2];
-                        let dx = 0;
-                        let dy = 0;
-                        if (Math.abs(x_dis) > Math.abs(y_dis)) {
-                            dx = Math.sign(x_dis) * gridDpi;
-                        }
-                        else {
-                            dy = Math.sign(y_dis) * gridDpi;
+                        let dx = Math.sign(x_dis) * gridDpi;
+                        let dy = Math.sign(y_dis) * gridDpi;
+                        if (!diagonalMode) {
+                            if (Math.abs(x_dis) > Math.abs(y_dis)) {
+                                dy = 0
+                            }
+                            else {
+                                dx = 0
+                            }
                         }
                         path.commands.push([Command.LINE, lastCommand[1] + dx, lastCommand[2] + dy])
                     }
@@ -187,15 +215,45 @@ async function onToolDragMove(context, event) {
                     }
                     lastCommand = path.commands[path.commands.length - 1];
                 }
-                path.commands.push([Command.LINE, newPos.x, newPos.y])
+                if (getDis(newPos, { x: lastCommand[1], y: lastCommand[2]}) > gridDpi / 2) {
+                    path.commands.push([Command.LINE, newPos.x, newPos.y])
+                }
             }
             if (dragItem) {
                 dragItem.position = newPos;
             }
             label.position = newPos;
-            label.text.plainText = `${scale_multiplier * (path.commands.length - 1)}${scale}`;
+            let distance = 0
+            let diagonalMovesCount = 0
+            for (let command of path.commands) {
+                if (command[0] == Command.LINE) {
+                    let dis = getDis({ x: command[1], y: command[2] }, { x: lastCommand[1], y: lastCommand[2] })
+                    let diagonal = dis > gridDpi * 1.1
+                    if (!diagonal) {
+                        distance +=1;
+                    }
+                    else {
+                        if (diagonalMode == 2) {
+                            distance += 1.5;
+                        }
+                        else if (diagonalMode == 3) {
+                            distance += 1 + (diagonalMovesCount % 2);
+                            diagonalMovesCount += 1;
+                        }
+                        else {
+                            distance += 1;
+                        }
+                    }
+                }
+                lastCommand = command
+            }
+            label.text.plainText = `${scale_multiplier * distance}${scale}`;
         });
     }
+}
+
+function getDis(p1, p2) {
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2))
 }
 
 async function onToolDragEnd(context, event) {
@@ -238,6 +296,7 @@ function onToolDragCancel() {
 
 OBR.onReady(async () => {
     createTool();
-    createMode();
+    createModes();
+    createDiagonalModeAction();
 });
 

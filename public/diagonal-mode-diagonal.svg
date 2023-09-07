@@ -1,0 +1,10 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+  <style>
+    .number {
+      font: bold 12px sans-serif;
+    }
+  </style>
+  <text x="15" y="20" class="number">1</text>
+  <line x1="6" y1="18" x2="18" y2="6" stroke="#f00" stroke-width="4" stroke-linecap="round"></line>
+</svg>
