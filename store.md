@@ -22,8 +22,6 @@ Two Actions:
   - Clean Up: Only available after a path has been made using the Draw mode. Cleans up all drawn paths.
   - Toggle Diagonal modes (ignored in hex grid layout)
 
-
-Please reach out to me in discord at kaisky1911 for questions or ideas.
-
 ![path-measure-tools example](https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/tools.png)
 
+Please reach out to me in discord at kaisky1911 for questions or ideas.
