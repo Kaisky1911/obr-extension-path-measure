@@ -155,10 +155,12 @@ async function onToolDragStart(context, event) {
         .build();
     let items = [label, path]
     if (dragItem) {
-        items.push(dragItem);
+        let attachements = await OBR.scene.items.getItemAttachments([dragItem.id])
+        items = items.concat(attachements);
     }
     interaction = await OBR.interaction.startItemInteraction(items);
 }
+
 async function onToolDragMove(context, event) {
     if (interaction) {
         const [update] = interaction;
@@ -174,7 +176,15 @@ async function onToolDragMove(context, event) {
         let gridType = await OBR.scene.grid.getType()
         let gridDpi = await OBR.scene.grid.getDpi()
         let scale_multiplier = (await OBR.scene.grid.getScale()).parsed.multiplier
-        update(([label, path, dragItem]) => {
+        update((items) => {
+            let label = items[0]
+            let path = items[1]
+            let dragItem = null
+            let attachements = null
+            if (items.length > 2) {
+                dragItem = items[2]
+                attachements = items.slice(3)
+            }
             let lastCommand = path.commands[path.commands.length - 1];
             let lastLastCommand = path.commands[path.commands.length - 2];
             if (lastCommand) {
@@ -220,6 +230,11 @@ async function onToolDragMove(context, event) {
                 }
             }
             if (dragItem) {
+                for (let attachment of attachements) {
+                    let rel_x = attachment.position.x - dragItem.position.x
+                    let rel_y = attachment.position.y - dragItem.position.y
+                    attachment.position = { x: newPos.x + rel_x, y: newPos.y + rel_y }
+                }
                 dragItem.position = newPos;
             }
             label.position = newPos;
@@ -260,16 +275,23 @@ async function onToolDragEnd(context, event) {
     if (interaction) {
         const [update, stop] = interaction;
         let newPos = await snapToGrid(event.pointerPosition);
-        let [label, path, dragItem] = update(([label, path, dragItem]) => {
-            if (dragItem) {
-                OBR.scene.items.updateItems([dragItem], (items) => {
-                    for (let item of items) {
-                        item.position = newPos;
+        let items = update((items) => {
+            if (items.length > 2) {
+                let dragItem = items[2]
+                let attachements = items.slice(3)
+                OBR.scene.items.updateItems(([dragItem].concat(attachements)), (items) => {
+                    let dragItem = items[0]
+                    let attachements = items.slice(1)
+                    dragItem.position = newPos
+                    for (let attachement of attachements) {
+                        attachement.position = { x: attachement.position.x, y: attachement.position.y }
                     }
                 })
             }
         });
         if (context.activeMode === `${ID}/draw`) {
+            let label = items[0]
+            let path = items[1]
             OBR.scene.items.addItems([label, path]);
             allMyItems.push([label, path]);
             addCleanupAction();
