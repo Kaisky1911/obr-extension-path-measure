@@ -133,7 +133,7 @@ async function onToolDragStart(context, event) {
     let startPos = await snapToGrid(event.pointerPosition);
     dragStartPos = startPos
     let dragItem = null
-    if (context.activeMode === `${ID}/move`) {
+    if (context.activeMode === `${ID}/move` && (await OBR.player.hasPermission("CHARACTER_UPDATE"))) {
         if (event.target && event.target.layer === "CHARACTER") {
             dragItem = event.target;
         }
