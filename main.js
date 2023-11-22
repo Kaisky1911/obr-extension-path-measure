@@ -11,7 +11,7 @@ let lastGridPos = null
 let cleanupActionIsAdded = false;
 
 async function snapToGrid(pos) {
-    return await OBR.scene.grid.snapPosition(pos, true, false)
+    return await OBR.scene.grid.snapPosition(pos, 1.0, false)
 }
 
 
