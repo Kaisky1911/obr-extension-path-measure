@@ -133,8 +133,13 @@ async function onToolDragStart(context, event) {
     let startPos = await snapToGrid(event.pointerPosition);
     dragStartPos = startPos
     let dragItem = null
-    if (context.activeMode === `${ID}/move`) {
-        if (event.target && event.target.layer === "CHARACTER") {
+    if (context.activeMode === `${ID}/move` && event.target) {
+        let layer = event.target.layer
+        let updatePerm = await OBR.player.hasPermission(layer + "_UPDATE")
+        let ownerOnlyPerm = await OBR.player.hasPermission(layer + "_OWNER_ONLY")
+        let isOwner = event.target.createdUserId === OBR.player.id
+        console.log(updatePerm, ownerOnlyPerm, isOwner)
+        if (updatePerm && (isOwner || !ownerOnlyPerm)) {
             dragItem = event.target;
         }
     }
