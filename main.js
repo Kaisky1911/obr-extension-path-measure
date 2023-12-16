@@ -138,7 +138,8 @@ async function onToolDragStart(context, event) {
         let updatePerm = await OBR.player.hasPermission(layer + "_UPDATE")
         let ownerOnlyPerm = await OBR.player.hasPermission(layer + "_OWNER_ONLY")
         let isOwner = event.target.createdUserId === OBR.player.id
-        if (updatePerm && (isOwner || !ownerOnlyPerm)) {
+        let locked = event.target.locked
+        if (updatePerm && (isOwner || !ownerOnlyPerm) && !locked) {
             dragItem = event.target;
         }
     }
