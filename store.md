@@ -24,4 +24,4 @@ Two Actions:
 
 ![path-measure-tools example](https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/tools.png)
 
-Please reach out to me in discord at kaisky1911 for questions or ideas.
+Please reach out to me in discord at caera1911 for questions or ideas.
