@@ -126,6 +126,22 @@ function createModes() {
         onToolDragEnd,
         onToolDragCancel,
     });
+    OBR.tool.createMode({
+        id: `${ID}/move_draw`,
+        icons: [
+            {
+                icon: "/move_draw.svg",
+                label: "Move+Draw",
+                filter: {
+                    activeTools: [`${ID}/tool`],
+                },
+            },
+        ],
+        onToolDragStart,
+        onToolDragMove,
+        onToolDragEnd,
+        onToolDragCancel,
+    });
 }
 
 async function onToolDragStart(context, event) {
@@ -133,7 +149,7 @@ async function onToolDragStart(context, event) {
     let startPos = await snapToGrid(event.pointerPosition);
     dragStartPos = startPos
     let dragItem = null
-    if (context.activeMode === `${ID}/move` && event.target) {
+    if (isMoveMode(context.activeMode) && event.target) {
         let layer = event.target.layer
         let updatePerm = await OBR.player.hasPermission(layer + "_UPDATE")
         let ownerOnlyPerm = await OBR.player.hasPermission(layer + "_OWNER_ONLY")
@@ -164,6 +180,14 @@ async function onToolDragStart(context, event) {
         items = items.concat(attachements);
     }
     interaction = await OBR.interaction.startItemInteraction(items);
+}
+
+function isMoveMode(mode) {
+    return mode === `${ID}/move` || mode === `${ID}/move_draw`;
+}
+
+function isDrawMode(mode) {
+    return mode === `${ID}/draw` || mode === `${ID}/move_draw`;
 }
 
 async function onToolDragMove(context, event) {
@@ -294,7 +318,7 @@ async function onToolDragEnd(context, event) {
                 })
             }
         });
-        if (context.activeMode === `${ID}/draw`) {
+        if (isDrawMode(context.activeMode)) {
             let label = items[0]
             let path = items[1]
             OBR.scene.items.addItems([label, path]);

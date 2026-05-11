@@ -13,13 +13,14 @@ learn-more: https://github.com/Kaisky1911/obr-extension-path-measure
 
 This extension allows players to measure the distance of a path along the grid. Works with both hexagonal and rectangular grid settings.
 
-The tool provides three modes:
+The tool provides four modes:
   - Move: Moves a character while showing the path and measured distance
   - Measure: Only shows path and distance without moving a character
   - Draw: Draws path and distance on the map. Can be deleted manually or using the Clean Up action.
+  - Move+Draw: Moves a character and leaves the path and measured distance on the map. Can be deleted manually or using the Clean Up action.
 
 Two Actions:
-  - Clean Up: Only available after a path has been made using the Draw mode. Cleans up all drawn paths.
+  - Clean Up: Only available after a path has been made using the Draw or Move+Draw mode. Cleans up all drawn paths.
   - Toggle Diagonal modes (ignored in hex grid layout)
 
 ![path-measure-tools example](https://raw.githubusercontent.com/Kaisky1911/obr-extension-path-measure/main/tools.png)
